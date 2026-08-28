@@ -26,11 +26,17 @@ def play_turn(game_state: GameState, dice_num: int)->GameState:
     # Some action
     player_index = game_state.turn % len(game_state.players)
     player = game_state.players[player_index]
+    print(f"Turn #{game_state.turn+1} - {player.name}'s turn")
+    print(f"{player.name} throwed the dice and got a {dice_num}")
+
     new_player = move_player(player=player, steps=dice_num)
     players_list = tuple(
         new_player if i == player_index else p
         for i, p in enumerate(game_state.players)
     )
+    print(f"{player.name} advanced {dice_num} cells")
+
+    input()
 
     return replace(
         game_state,
