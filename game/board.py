@@ -1,7 +1,7 @@
 ROWS = 9
 COLS = 10
 
-# Recorrido del tablero empezando en INICIO
+# Recorrido del tablero empezando en START
 LEFT = tuple((row, 0) for row in range(ROWS - 1, -1, -1))
 
 TOP = tuple((0, col) for col in range(1, COLS))
@@ -15,8 +15,8 @@ BOTTOM = tuple(
 
 PATH = LEFT + TOP + RIGHT + BOTTOM
 
-INICIO = 0
-FIN = len(PATH) - 1
+START = 0
+END = len(PATH) - 1
 
 SPECIAL = {
     4: "P1",
@@ -29,13 +29,3 @@ SPECIAL = {
 
 def coord(posicion):
     return PATH[posicion]
-
-
-def tipo_casilla(posicion):
-    if posicion == INICIO:
-        return "INICIO"
-
-    if posicion == FIN:
-        return "FIN"
-
-    return SPECIAL.get(posicion, "NORMAL")
