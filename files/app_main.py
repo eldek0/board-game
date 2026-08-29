@@ -128,6 +128,12 @@ class App:
 			self.name_error = "Ambos jugadores deben tener nombre"
 			return
 
+		
+		if name1.lower() == name2.lower():
+			self.name_error = "Los jugadores deben tener nombres diferentes."
+			return
+
+
 		self.player_names = (name1, name2)
 		self.name_error = ""
 		self.new_game()
