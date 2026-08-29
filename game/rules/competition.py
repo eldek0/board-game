@@ -1,5 +1,6 @@
 import random
 from game.board import START, END
+from game.log import log
 from game.state import Player
 from game.rules.occupancy import players_at_position, move_back_until_free
 
@@ -27,13 +28,13 @@ def resolve_competition(
         return resolve_competition(player, other_players, rng)
 
     if player_roll > rival_roll:
-        print(f"{player.name} won the tie-breaker against {rival.name} ({player_roll} vs {rival_roll})")
+        log(f"{player.name} won the tie-breaker against {rival.name} ({player_roll} vs {rival_roll})")
         moved_rival = move_back_until_free(rival, other_players)
         new_others = tuple(
             moved_rival if p is rival else p for p in other_players
         )
         return player, new_others
 
-    print(f"{player.name} lost the tie-breaker against {rival.name} ({player_roll} vs {rival_roll})")
+    log(f"{player.name} lost the tie-breaker against {rival.name} ({player_roll} vs {rival_roll})")
     moved_player = move_back_until_free(player, other_players)
     return moved_player, other_players

@@ -7,6 +7,7 @@ import random
 
 import files.draw as dr
 import game.gui as gui
+from game import log as game_log
 from files.mouse import Mouse
 from files.import_imp import import_images
 from files.utils import player_colors
@@ -76,9 +77,10 @@ class App:
 			#DeltaTime
 			self.get_deltatime()
 
-			self.ui_manager.update(self.deltaTime)
-
 			self.game_events(events)
+
+			gui.sync_console(self)
+			self.ui_manager.update(self.deltaTime)
 
 			self.update(events)
 
@@ -104,6 +106,8 @@ class App:
 	def reset_game(self):
 		self.new_game()
 		self.btn_roll.enable()
+		game_log.clear()
+		self.log_box.set_text("")
 
 	def roll_dice(self):
 		if self.game_state.winner:
