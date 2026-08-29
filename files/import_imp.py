@@ -36,3 +36,4 @@ class import_images:
 		self.Arial60 = pygame.font.Font(self.Arial, 60)
 		self.Arial30 = pygame.font.Font(self.Arial, 30)
 		self.Arial24 = pygame.font.Font(self.Arial, 24)
+		self.Arial18 = pygame.font.Font(self.Arial, 18)

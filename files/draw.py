@@ -9,4 +9,7 @@ import game.gui as gui
 
 def Draw(app:App):
 	if app.scene == 0:
+		gui.draw_name_screen(app)
+
+	elif app.scene == 1:
 		gui.draw_game(app)

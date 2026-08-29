@@ -1,5 +1,6 @@
 import pygame
 import time
+from pygame import event
 import pygame_gui
 from pygame.locals import QUIT
 
@@ -29,6 +30,7 @@ class App:
 
 		self.assets = import_images()
 		self.scene = 0
+		self.name_error =  ""
 
 		# Mouse
 		self.mouse_control = Mouse()
@@ -39,18 +41,28 @@ class App:
 		# Partida
 		self.num_players = players
 		self.seed = seed
+		self.player_names = tuple(
+			f"Player {i+1}" for i in range(self.num_players)
+		)
 		self.new_game()
 
 		# Widgets
 		self.ui_manager = pygame_gui.UIManager(self.dimentions)
 		gui.create_game_ui(self)
+		gui.create_name_ui(self)
+		gui.show_name_ui(self)
 
 	def new_game(self):
-		"""(Re)starts the match from scratch with the configured players and seed."""
-		colors = player_colors(self.num_players, self.seed)
+		colors = (
+			(50, 130, 255),   # jugador 1 azul
+			(255, 190, 50),   # jugador 2 amarillo
+		)
 		self.game_state = GameState(
 			players=tuple(
-				Player(name=f"Player {i+1}", color=colors[i])
+				Player(
+					name=self.player_names[i], 
+		   			color=colors[i]
+				)
 				for i in range(self.num_players)
 			),
 			rng=random.Random(self.seed),
@@ -91,10 +103,12 @@ class App:
 				self.dimentions = (event.w, event.h)
 				self.surface = pygame.display.set_mode(self.dimentions, pygame.RESIZABLE)
 				self.ui_manager.set_window_resolution(self.dimentions)
-				gui.layout_game_ui(self)
+				gui.layout_ui(self)
 
 			elif event.type == pygame_gui.UI_BUTTON_PRESSED:
-				if event.ui_element == self.btn_roll:
+				if event.ui_element == self.btn_start:
+					self.start_interactive_game()
+				elif event.ui_element == self.btn_roll:
 					self.roll_dice()
 				elif event.ui_element == self.btn_reset:
 					self.reset_game()
@@ -104,6 +118,22 @@ class App:
 	def reset_game(self):
 		self.new_game()
 		self.btn_roll.enable()
+
+
+	def start_interactive_game(self):
+		name1 = self.input_player1.get_text().strip()
+		name2 = self.input_player2.get_text().strip()	
+
+		if not name1 or not name2:
+			self.name_error = "Ambos jugadores deben tener nombre"
+			return
+
+		self.player_names = (name1, name2)
+		self.name_error = ""
+		self.new_game()
+		self.scene = 1
+		gui.show_game_ui(self)
+
 
 	def roll_dice(self):
 		if self.game_state.winner:
