@@ -38,6 +38,10 @@ ERROR_COLOR = (170, 30, 30)
 BTN_W, BTN_H, BTN_GAP = 170, 44, 16
 MENU_BTN_MARGIN = 20
 PLAYER_RADIUS = 10
+# Victory banner: sits in the hollow middle of the board, below the die
+WINNER_PAD = 28
+WINNER_MIN_W = 320
+WINNER_BG = (255, 255, 255)
 # Log box: fixed size, sits to the right of the board and vertically centered on it
 LOG_W, LOG_H, LOG_GAP = 250, 460, 16
 NAME_INPUT_W = 320
@@ -220,6 +224,44 @@ def draw_players(app:App, origin:tuple[int, int]=None):
 
 
 				
+def draw_winner_banner(app:App, origin:tuple[int, int]=None):
+	"""Victory panel announcing the winner, drawn over the hollow center of the board.
+
+	The panel is sized from the rendered text instead of a fixed width, so a long
+	player name widens it rather than spilling out the sides.
+	"""
+	winner = app.game_state.winner
+	if winner is None:
+		return
+
+	if origin is None:
+		origin = board_origin(*app.surface.get_size())
+
+	title = app.assets.Arial30.render(winner.name, True, winner.color)
+	subtitle = app.assets.Arial24.render("Ganó la partida", True, TEXT_COLOR)
+
+	panel = pygame.Rect(
+		0,
+		0,
+		max(WINNER_MIN_W,
+		    title.get_width() + WINNER_PAD * 2,
+		    subtitle.get_width() + WINNER_PAD * 2),
+		title.get_height() + subtitle.get_height() + WINNER_PAD * 2
+	)
+	# Pushed past the die so both stay readable at once
+	panel.center = (
+		origin[0] + COLS * CELL // 2,
+		origin[1] + ROWS * CELL // 2 + DICE_SIZE // 2 + 70
+	)
+
+	pygame.draw.rect(app.surface, WINNER_BG, panel, border_radius=12)
+	pygame.draw.rect(app.surface, winner.color, panel, width=4, border_radius=12)
+
+	app.surface.blit(title, title.get_rect(
+		midtop=(panel.centerx, panel.top + WINNER_PAD)))
+	app.surface.blit(subtitle, subtitle.get_rect(
+		midbottom=(panel.centerx, panel.bottom - WINNER_PAD)))
+
 def button_rect(width: int, height: int, slot: int = 0) -> pygame.Rect:
 	"""The roll/reset buttons, stacked right below the board (slot 0 = top)."""
 	origin = board_origin(width, height)
@@ -492,7 +534,7 @@ def draw_hud(app:App):
 
 	# Left: whose turn it is, or the winner once the game is over
 	if state.winner:
-		status = f"Gano {state.winner.name}"
+		status = f"Ganó {state.winner.name}"
 	else:
 		current_player = state.players[
 			state.turn % len(state.players)
@@ -650,3 +692,4 @@ def draw_game(app:App):
 	draw_players(app)
 	draw_hud(app)
 	draw_console_title(app)
+	draw_winner_banner(app)

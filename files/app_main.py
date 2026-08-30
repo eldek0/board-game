@@ -243,33 +243,6 @@ class App:
 		self.scene = 1
 		gui.show_name_ui(self)
 
-	def layout_ui(app: App):
-		width, height = app.surface.get_size()
-		app.btn_interactive.set_relative_position(
-			(
-				width // 2 - gui.BTN_W // 2,
-				height // 2  - 30
-			)
-		)
-
-		app.btn_simulation.set_relative_position(
-			(
-				width // 2 - gui.BTN_W // 2,
-				height // 2 + 30
-			)
-		)
-
-		input1_rect, input2_rect, start_rect = gui.name_ui_rects(
-			width,
-			height
-		)
-
-		app.input_player1.set_relative_position(input1_rect.topleft)
-		app.input_player2.set_relative_position(input2_rect.topleft)
-		app.btn_start.set_relative_position(start_rect.topleft)
-
-		gui.layout_game_ui(app)
-
 	def reset_game(self):
 		"""Restarts the current game.
 

@@ -32,11 +32,15 @@ def play_turn(game_state: GameState, dice_num: int)->GameState:
     moved_player, other_players = resolve_competition(moved_player, other_players, game_state.rng)
 
     players_list = _place_player(other_players, player_index, moved_player)
+    winner = moved_player if is_winner(moved_player) else None
+
+    if winner:
+        log(f"¡{winner.name} llegó al FIN y ganó la partida!")
 
     return replace(
         game_state,
         players=players_list,
-        winner=moved_player if is_winner(moved_player) else None,
+        winner=winner,
         turn=game_state.turn+1
     )
 
