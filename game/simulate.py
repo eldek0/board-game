@@ -3,6 +3,7 @@ import random
 
 from game.state import Player, GameState
 from game.rules import *
+from game.dice import dice_stream
 from files.utils import player_colors
 
 def get_args():
@@ -30,17 +31,33 @@ def initialize()->GameState:
         rng=rng
     )
 
-def game_recursion(game_state:GameState):
+
+def game_recursion(game_state: GameState, dice_generator):
     if game_state.winner:
-        print(f"Ganó {game_state.winner.name} color={game_state.winner.color}")
+        print(
+            f"Ganó {game_state.winner.name} "
+            f"color={game_state.winner.color}"
+        )
         return
 
-    roll_dice = game_state.rng.randint(1, 6)
-    new_state = play_turn(game_state, roll_dice)
+    roll_dice = next(dice_generator)
 
-    game_recursion(new_state)
+    new_state = play_turn(
+        game_state,
+        roll_dice
+    )
+
+    game_recursion(
+        new_state,
+        dice_generator
+    )
 
 if __name__ == "__main__":
     game_state = initialize()
 
-    game_recursion(game_state)
+    dice_generator = dice_stream(game_state.rng)
+
+    game_recursion(
+        game_state, 
+        dice_generator
+    )

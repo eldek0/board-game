@@ -13,6 +13,8 @@ from files.import_imp import import_images
 from files.utils import player_colors
 from game.state import Player, GameState
 from game.rules import play_turn
+from game.dice import dice_stream
+from game.functional import normalize_name
 
 UI_THEME_CONFIG = "sprites/design/ui_theme.json"
 
@@ -99,6 +101,7 @@ class App:
 			),
 			rng=random.Random(self.seed),
 		)
+		self.dice_generator = dice_stream(self.game_state.rng)
 		self.last_roll = None
 
 	def get_deltatime(self):
@@ -255,7 +258,7 @@ class App:
 			self.btn_roll.enable()
 			return
 
-		self.seed = random.randint(0, 9999)
+		self.seed = random.SystemRandom().randint(0, 2**32 - 1)
 		self.new_game()
 
 		self.btn_roll.show()
@@ -273,7 +276,7 @@ class App:
 			return
 
 		
-		if name1.lower() == name2.lower():
+		if normalize_name(name1) == normalize_name(name2):
 			self.name_error = "Los jugadores deben tener nombres diferentes."
 			return
 
@@ -281,6 +284,9 @@ class App:
 		self.player_names = (name1, name2)
 		self.num_players = 2
 		self.name_error = ""
+
+		#esto es para que cada partida tenga una semilla distinta
+		self.seed = random.SystemRandom().randint(0, 2**32 - 1)
 
 		self.new_game()
 
@@ -296,7 +302,7 @@ class App:
 		if self.game_state.winner:
 			return
 
-		self.last_roll = self.game_state.rng.randint(1, 6)
+		self.last_roll = next(self.dice_generator)
 		self.game_state = play_turn(self.game_state, self.last_roll)
 
 		if self.game_state.winner:
@@ -325,7 +331,7 @@ class App:
 
 		self.last_simulation_step = current_time
 
-		self.last_roll = self.game_state.rng.randint(1, 6)
+		self.last_roll = next(self.dice_generator)
 
 		self.game_state = play_turn(
 			self.game_state,

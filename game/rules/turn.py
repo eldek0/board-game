@@ -1,10 +1,14 @@
 from dataclasses import replace
-from game.log import log
+from game.log import log, log_event
 from game.state import Player, GameState
 from game.rules.movement import move_player, is_winner
 from game.rules.landing import resolve_landing
 from game.rules.competition import resolve_competition
 
+@log_event(
+    lambda game_state, dice_num:
+        f"-Turno #{game_state.turn+1}-"
+)
 
 def play_turn(game_state: GameState, dice_num: int)->GameState:
     if dice_num not in range(1, 7):
@@ -15,7 +19,6 @@ def play_turn(game_state: GameState, dice_num: int)->GameState:
     other_players = tuple(
         p for i, p in enumerate(game_state.players) if i != player_index
     )
-    log(f"-Turno #{game_state.turn+1}-")
 
     # A punished player burns one skip instead of rolling
     if player.turns_to_skip > 0:
