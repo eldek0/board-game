@@ -8,6 +8,8 @@ import pygame
 import game.gui as gui
 
 def Draw(app:App):
+	gui.draw_background(app)
+
 	if app.scene == 0:
 		gui.draw_mode_screen(app)
 
@@ -16,3 +18,6 @@ def Draw(app:App):
 
 	elif app.scene == 2:
 		gui.draw_game(app)
+
+	elif app.scene == 3:
+		gui.draw_sim_config_screen(app)

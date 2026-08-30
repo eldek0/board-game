@@ -15,18 +15,18 @@ def play_turn(game_state: GameState, dice_num: int)->GameState:
     other_players = tuple(
         p for i, p in enumerate(game_state.players) if i != player_index
     )
-    log(f"-Turn #{game_state.turn+1}-")
+    log(f"-Turno #{game_state.turn+1}-")
 
     # A punished player burns one skip instead of rolling
     if player.turns_to_skip > 0:
-        log(f"{player.name} loses this turn ({player.turns_to_skip} skip(s) left)")
+        log(f"{player.name} pierde este turno (castigos pendientes: {player.turns_to_skip})")
         skipped_player = replace(player, turns_to_skip=player.turns_to_skip - 1)
         players_list = _place_player(other_players, player_index, skipped_player)
         return replace(game_state, players=players_list, turn=game_state.turn+1)
 
-    log(f"{player.name} throwed the dice and got a {dice_num}")
+    log(f"{player.name} tiró el dado y sacó un {dice_num}")
     moved_player = move_player(player=player, steps=dice_num)
-    log(f"{player.name} advanced {dice_num} cells")
+    log(f"{player.name} avanzó {dice_num} casillas")
 
     moved_player, other_players = resolve_landing(moved_player, other_players, game_state.rng)
     moved_player, other_players = resolve_competition(moved_player, other_players, game_state.rng)

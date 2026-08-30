@@ -20,7 +20,7 @@ def initialize()->GameState:
     # Unique color
     colors = player_colors(player_amount, seed)
 
-    print(f"Game Info: SEED={seed}, PLAYERS={player_amount}")
+    print(f"Semilla: {seed} - Jugadores: {player_amount}")
 
     return GameState(
         players=tuple(
@@ -32,7 +32,7 @@ def initialize()->GameState:
 
 def game_recursion(game_state:GameState):
     if game_state.winner:
-        print(f"The winner is {game_state.winner.name} color={game_state.winner.color}")
+        print(f"Ganó {game_state.winner.name} color={game_state.winner.color}")
         return
 
     roll_dice = game_state.rng.randint(1, 6)

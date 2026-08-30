@@ -1,0 +1,80 @@
+{
+    "button": {
+        "colours": {
+            "normal_bg": "RGB(255, 255, 255)",
+            "hovered_bg": "RGB(200, 200, 200)",
+            "disabled_bg": "RGB(0, 0, 0)",
+            "selected_bg": "RGB(200, 200, 255)",
+            "dark_bg": "RGB(0, 0, 0)",
+            "active_bg": "RGB(200, 200, 255)",
+            "normal_text": "RGB(0, 0, 0)",
+            "hovered_text": "RGB(0, 0, 0)",
+            "selected_text": "RGB(0, 0, 0)",
+            "active_text": "RGB(0, 0, 0)",
+            "disabled_text": "#6d736f",
+            "link_text": "#0000EE",
+            "link_hover": "#2020FF",
+            "link_selected": "#551A8B",
+            "text_shadow": "#777777",
+            "normal_border": "RGB(0, 0, 0)",
+            "hovered_border": "RGB(0, 0, 0)",
+            "disabled_border": "RGB(0, 0, 0)",
+            "selected_border": "RGB(0, 0, 0)",
+            "active_border": "RGB(0, 0, 0)",
+            "filled_bar": "#f4251b",
+            "unfilled_bar": "#CCCCCC"
+        }
+    },
+
+    "text_entry_line": {
+        "colours": {
+            "dark_bg": "RGB(255, 255, 255)",
+            "disabled_dark_bg": "RGB(200, 200, 200)",
+            "normal_text": "RGB(0, 0, 0)",
+            "disabled_text": "#6d736f",
+            "selected_bg": "RGB(200, 200, 255)",
+            "selected_text": "RGB(0, 0, 0)",
+            "text_cursor": "RGB(0, 0, 0)",
+            "normal_border": "RGB(0, 0, 0)",
+            "disabled_border": "#6d736f"
+        },
+        "misc": {
+            "border_width": "1",
+            "padding": "6,4"
+        }
+    },
+
+    "text_box": {
+        "colours": {
+            "dark_bg": "RGB(255, 255, 255)",
+            "normal_text": "RGB(0, 0, 0)",
+            "normal_border": "RGB(0, 0, 0)",
+            "selected_bg": "RGB(200, 200, 255)",
+            "selected_text": "RGB(0, 0, 0)",
+            "link_text": "#0000EE",
+            "link_hover": "#2020FF",
+            "link_selected": "#551A8B"
+        },
+        "font": {
+            "name": "noto_sans",
+            "size": "10"
+        },
+        "misc": {
+            "border_width": "1",
+            "padding": "6,6",
+            "line_spacing": "1.1"
+        }
+    },
+
+    "vertical_scroll_bar": {
+        "colours": {
+            "dark_bg": "RGB(200, 200, 200)",
+            "normal_border": "RGB(0, 0, 0)",
+            "disabled_dark_bg": "RGB(200, 200, 200)",
+            "disabled_border": "#6d736f"
+        },
+        "misc": {
+            "border_width": "1"
+        }
+    }
+}
