@@ -155,6 +155,8 @@ def console_rect(width: int, height: int) -> pygame.Rect:
 	x = origin[0] + COLS * CELL + LOG_GAP
 	y = origin[1] + (ROWS * CELL - LOG_H) // 2
 	return pygame.Rect(x, y, LOG_W, LOG_H)
+
+
 def create_name_ui(app:App):
 	input1_rect, input2_rect, start_rect = name_ui_rects(
 		*app.surface.get_size()
@@ -200,6 +202,100 @@ def create_game_ui(app:App):
 		manager=app.ui_manager)
 	game_log.drain()
 
+def create_mode_ui(app:App):
+	width, height = app.surface.get_size()
+
+	app.btn_interactive = pygame_gui.elements.UIButton(
+		relative_rect=pygame.Rect(
+			width // 2 - BTN_W // 2,
+			height // 2 - 30,
+			BTN_W,
+			BTN_H
+		),
+		text="Interactivo",
+		manager=app.ui_manager
+	)
+
+	app.btn_simulation = pygame_gui.elements.UIButton(
+		relative_rect=pygame.Rect(
+			width // 2 - BTN_W // 2,
+			height // 2 + 40,
+			BTN_W,
+			BTN_H
+		),
+		text="Simulacion",
+		manager=app.ui_manager
+	)
+
+def draw_mode_screen(app:App):
+	width, height = app.surface.get_size()
+
+	title_rect = pygame.Rect(
+		0,
+		height // 2 - 120,
+		width,
+		70
+	)
+
+	f.text_centered(
+		app.surface,
+		"Seleccione un modo de juego",
+		title_rect,
+		app.assets.Arial60,
+		(255, 255, 255)
+	)
+
+
+def show_name_ui(app:App):
+	app.btn_interactive.hide()
+	app.btn_simulation.hide()
+
+	app.input_player1.show()
+	app.input_player2.show()
+	app.btn_start.show()
+
+	app.btn_roll.hide()
+	app.btn_reset.hide()
+	app.log_box.hide()
+
+def show_mode_ui(app:App):
+	app.btn_interactive.show()
+	app.btn_simulation.show()
+
+	app.input_player1.hide()
+	app.input_player2.hide()
+	app.btn_start.hide()
+
+	app.btn_roll.hide()
+	app.btn_reset.hide()
+
+	app.log_box.hide()
+
+def show_game_ui(app:App):
+	app.btn_interactive.hide()
+	app.btn_simulation.hide()
+
+	app.input_player1.hide()
+	app.input_player2.hide()
+	app.btn_start.hide()
+
+	app.btn_roll.show()
+	app.btn_reset.show()
+	app.log_box.show()
+
+def show_simulation_ui(app:App):
+	app.btn_interactive.hide()
+	app.btn_simulation.hide()
+
+	app.input_player1.hide()
+	app.input_player2.hide()
+	app.btn_start.hide()
+
+	app.btn_roll.hide()
+	app.btn_reset.show()
+
+	app.log_box.show()
+
 def layout_game_ui(app:App):
 	"""Repositions widgets when the window is resized"""
 	app.btn_roll.set_relative_position(button_rect(*app.surface.get_size(), slot=0).topleft)
@@ -241,21 +337,9 @@ def draw_hud(app:App):
 		app.assets.Arial30, 
 		(255, 255, 255))
 
-def show_name_ui(app:App):
-	app.input_player1.show()
-	app.input_player2.show()
-	app.btn_start.show()
 
-	app.btn_roll.hide()
-	app.btn_reset.hide()
 
-def show_game_ui(app:App):
-	app.input_player1.hide()
-	app.input_player2.hide()
-	app.btn_start.hide()
 
-	app.btn_roll.show()
-	app.btn_reset.show()
 
 def draw_name_screen(app:App):
 	width, height = app.surface.get_size()
