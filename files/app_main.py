@@ -12,7 +12,7 @@ from files.mouse import Mouse
 from files.import_imp import import_images
 from files.utils import player_colors
 from game.state import Player, GameState
-from game.rules import play_turn
+from game.rules import play_turn, roll_fight, resolve_fight, is_fight_rolled
 from game.dice import dice_stream
 from game.functional import normalize_name
 
@@ -298,12 +298,33 @@ class App:
 		"""SPACE only rolls during an interactive game, never in the menus or the simulation."""
 		return self.scene == 2 and not self.simulation_mode
 
+	def advance(self):
+		"""One step of the game: a competition roll, its verdict, or a whole turn.
+
+		Revealing the verdict is a step of its own and burns no die, so both faces
+		stay on the board for a beat before the loser is sent back. A competition
+		roll leaves last_roll alone: that die belongs to a fighter, not to the turn.
+		"""
+		state = self.game_state
+
+		if is_fight_rolled(state):
+			self.game_state = resolve_fight(state)
+			return
+
+		value = next(self.dice_generator)
+
+		if state.fight is not None:
+			self.game_state = roll_fight(state, value)
+			return
+
+		self.last_roll = value
+		self.game_state = play_turn(state, value)
+
 	def roll_dice(self):
 		if self.game_state.winner:
 			return
 
-		self.last_roll = next(self.dice_generator)
-		self.game_state = play_turn(self.game_state, self.last_roll)
+		self.advance()
 
 		if self.game_state.winner:
 			self.btn_roll.disable()
@@ -331,10 +352,5 @@ class App:
 
 		self.last_simulation_step = current_time
 
-		self.last_roll = next(self.dice_generator)
-
-		self.game_state = play_turn(
-			self.game_state,
-			self.last_roll
-	)
+		self.advance()
 

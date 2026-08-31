@@ -40,12 +40,17 @@ def game_recursion(game_state: GameState, dice_generator):
         )
         return
 
-    roll_dice = next(dice_generator)
+    # Once both fighters have rolled, the step is the verdict and burns no die
+    if is_fight_rolled(game_state):
+        new_state = resolve_fight(game_state)
+    else:
+        roll_dice = next(dice_generator)
 
-    new_state = play_turn(
-        game_state,
-        roll_dice
-    )
+        # A pending competition takes the roll instead of the turn
+        new_state = (
+            roll_fight(game_state, roll_dice) if game_state.fight
+            else play_turn(game_state, roll_dice)
+        )
 
     game_recursion(
         new_state,

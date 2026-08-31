@@ -10,11 +10,14 @@ import pygame_gui
 
 from game.board import PATH, SPECIAL, START, END, ROWS, COLS, coord
 from game import log as game_log
+from game.rules import pending_roller, fight_outcome
 import files.utils as f
 
 # Board cell size and roll-button geometry, in pixels
 CELL = 64
 DICE_SIZE = 130        # on-screen side of the die drawn inside the board
+FIGHT_DICE_SIZE = 110  # the two competition dice are smaller, they sit side by side
+FIGHT_GAP = 56
 BG_SPEED = 40          # background scroll, pixels per second
 TEXT_COLOR = (35, 35, 40)
 
@@ -153,14 +156,15 @@ def token_position(rect: pygame.Rect, index: int, total: int) -> tuple[int, int]
 	offset = (index - (total - 1) / 2) * (PLAYER_RADIUS + 2)
 	return (int(cx + offset), cy)
 
-_dice_scaled: dict[int, pygame.Surface] = {}
+_dice_scaled: dict[tuple[int, int], pygame.Surface] = {}
 
-def dice_image(app:App, value: int) -> pygame.Surface:
-	"""The die face for value, scaled to DICE_SIZE. Cached: at most six entries."""
-	if value not in _dice_scaled:
-		_dice_scaled[value] = pygame.transform.smoothscale(
-			app.assets.dice[value], (DICE_SIZE, DICE_SIZE))
-	return _dice_scaled[value]
+def dice_image(app:App, value: int, size: int = DICE_SIZE) -> pygame.Surface:
+	"""The die face for value, scaled to size. Cached one entry per value and size."""
+	key = (value, size)
+	if key not in _dice_scaled:
+		_dice_scaled[key] = pygame.transform.smoothscale(
+			app.assets.dice[value], (size, size))
+	return _dice_scaled[key]
 
 def draw_dice(app:App, origin:tuple[int, int]=None):
 	"""Draws the last rolled die in the hollow middle of the board."""
@@ -177,6 +181,96 @@ def draw_dice(app:App, origin:tuple[int, int]=None):
 	# The sprite is only the black outline and pips, so the face is painted here
 	pygame.draw.rect(app.surface, CELL_COLOR, rect)
 	app.surface.blit(image, rect)
+
+def fight_dice_rects(origin:tuple[int, int]) -> tuple[pygame.Rect, pygame.Rect]:
+	"""The two competition dice, side by side in the hollow middle of the board."""
+	center = (origin[0] + COLS * CELL // 2, origin[1] + ROWS * CELL // 2)
+	step = (FIGHT_DICE_SIZE + FIGHT_GAP) // 2
+
+	return tuple(
+		pygame.Rect(
+			center[0] + offset - FIGHT_DICE_SIZE // 2,
+			center[1] - FIGHT_DICE_SIZE // 2,
+			FIGHT_DICE_SIZE,
+			FIGHT_DICE_SIZE
+		)
+		for offset in (-step, step)
+	)
+
+def draw_fight(app:App, origin:tuple[int, int]=None):
+	"""The pending competition: one die per player, named and framed in their color.
+
+	A die nobody has rolled yet is drawn as an empty face with a question mark, so
+	it reads at a glance who still owes a roll. Takes over the middle of the board
+	from the single turn die while the competition lasts.
+	"""
+	fight = app.game_state.fight
+	if fight is None:
+		return
+
+	if origin is None:
+		origin = board_origin(*app.surface.get_size())
+
+	players = app.game_state.players
+	sides = (
+		(players[fight.challenger], fight.challenger_roll),
+		(players[fight.rival], fight.rival_roll),
+	)
+
+	for (player, roll), rect in zip(sides, fight_dice_rects(origin)):
+		# The die sprite is ink on transparency, so the face is painted underneath
+		pygame.draw.rect(app.surface, CELL_COLOR, rect)
+
+		if roll is None:
+			f.text_centered(app.surface, "?", rect, app.assets.Arial60, player.color)
+		else:
+			app.surface.blit(dice_image(app, roll, FIGHT_DICE_SIZE), rect)
+
+		pygame.draw.rect(app.surface, player.color, rect, width=4)
+
+		f.text_centered(
+			app.surface,
+			player.name,
+			pygame.Rect(rect.x, rect.top - 36, rect.width, 30),
+			app.assets.Arial24,
+			player.color
+		)
+
+	draw_fight_prompt(app, origin)
+
+def fight_prompt_lines(app:App) -> tuple[str, ...]:
+	"""What to say under the dice: who rolls next, or the verdict once both rolled.
+
+	The verdict stays up for a whole step, so the second face is actually readable
+	before the loser is sent back.
+	"""
+	outcome = fight_outcome(app.game_state)
+
+	if outcome is not None:
+		if app.simulation_mode:
+			return (outcome,)
+		return (outcome, "ESPACIO para continuar")
+
+	roller = pending_roller(app.game_state)
+	if roller is None:
+		return ()
+
+	if app.simulation_mode:
+		return (f"Tira {roller.name}",)
+	return (f"{roller.name}: ESPACIO para tirar",)
+
+def draw_fight_prompt(app:App, origin:tuple[int, int]):
+	"""Stacks the competition messages right below the two dice."""
+	top = origin[1] + ROWS * CELL // 2 + FIGHT_DICE_SIZE // 2 + 26
+
+	for index, line in enumerate(fight_prompt_lines(app)):
+		f.text_centered(
+			app.surface,
+			line,
+			pygame.Rect(origin[0], top + index * 36, COLS * CELL, 34),
+			app.assets.Arial30 if index == 0 else app.assets.Arial24,
+			TEXT_COLOR
+		)
 
 def draw_players(app:App, origin:tuple[int, int]=None):
 	"""Draws every player as a colored token on the cell matching its current position."""
@@ -535,10 +629,9 @@ def draw_hud(app:App):
 	# Left: whose turn it is, or the winner once the game is over
 	if state.winner:
 		status = f"Ganó {state.winner.name}"
+	elif state.fight is not None:
+		status = f"Turno {state.turn + 1} - competencia"
 	else:
-		current_player = state.players[
-			state.turn % len(state.players)
-		]
 		status = f"Turno {state.turn + 1}"
 
 	# Right: last rolled value, a dash before the first roll
@@ -688,7 +781,12 @@ def draw_console_title(app:App):
 
 def draw_game(app:App):
 	draw_board(app)
-	draw_dice(app)
+
+	if app.game_state.fight is not None:
+		draw_fight(app)
+	else:
+		draw_dice(app)
+
 	draw_players(app)
 	draw_hud(app)
 	draw_console_title(app)
