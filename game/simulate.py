@@ -4,7 +4,7 @@ import random
 from game.state import Player, GameState
 from game.rules import *
 from game.dice import dice_stream
-from files.utils import player_colors
+from game.colors import player_colors
 
 def get_args():
     parser = argparse.ArgumentParser()

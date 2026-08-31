@@ -6,11 +6,10 @@ from pygame.locals import QUIT
 
 import random
 import files.draw as dr
-import game.gui as gui
+import files.gui as gui
 from game import log as game_log
 from files.mouse import Mouse
 from files.import_imp import import_images
-from files.utils import player_colors
 from game.state import Player, GameState
 from game.rules import play_turn, roll_fight, resolve_fight, is_fight_rolled
 from game.dice import dice_stream

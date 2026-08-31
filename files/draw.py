@@ -5,7 +5,7 @@ if TYPE_CHECKING: from files.app_main import App
 
 import pygame
 
-import game.gui as gui
+import files.gui as gui
 
 def Draw(app:App):
 	gui.draw_background(app)
