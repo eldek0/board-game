@@ -1,16 +1,23 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 
+if TYPE_CHECKING: from files.app_main import App
+
 import pygame
 
-import files.utils as f
-
-if TYPE_CHECKING:
-	from files.app_main import App
+import files.gui as gui
 
 def Draw(app:App):
-	if app.scene == 0:
-		#app.surface.blit(app.assets.pygame_spr, (0, 0))
-		#f.text(app.surface, "HOla", (0,0), app.assets.Arial60, (0, 0, 150))
+	gui.draw_background(app)
 
-		pygame.draw.line(app.surface, (0, 0, 0), (0, 0), (200, 200), width=2)
+	if app.scene == 0:
+		gui.draw_mode_screen(app)
+
+	elif app.scene == 1:
+		gui.draw_name_screen(app)
+
+	elif app.scene == 2:
+		gui.draw_game(app)
+
+	elif app.scene == 3:
+		gui.draw_sim_config_screen(app)
